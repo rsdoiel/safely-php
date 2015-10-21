@@ -7,23 +7,24 @@
  * mergepath - A simple function to implode an array into a valid
  * file system path. 
  *
- * @param $path_parts - an associative array of values which will be
+ * @param  $path_parts - an associative array of values which will be
  * used to assemble a new path.
- * @param $delim - (optional) the delimiter used to separate parts of a path.
+ * @param  $delim - (optional) the delimiter used to separate parts of a path.
  * Defaults to '/'.
  * @return a string of the path or false if a problem occurs 
  */
-function mergepath ($path_parts, $delim = '/') {
-  $new_path = '';
+function mergepath($path_parts, $delim = '/') 
+{
+    $new_path = '';
   
-  foreach ($path_parts as $part) {
-    if (substr(trim($part),0,1) == $delim) {
-      $new_path .= trim($part);
-    } else {
-      $new_path .= $delim . trim($part);
+    foreach ($path_parts as $part) {
+        if (substr(trim($part), 0, 1) == $delim) {
+            $new_path .= trim($part);
+        } else {
+            $new_path .= $delim . trim($part);
+        }
     }
-  }
-  return $new_path;
+    return $new_path;
 }
 
 
@@ -39,7 +40,8 @@ function mergepath ($path_parts, $delim = '/') {
  *   $myheaders[] = fmtHeader("", true, 200);
  *   $myheaders[] = fmtHeader("Content-Type: text/plain");
  */
-function fmtHeader($message, $overwrite = null, $status_code = null) {
+function fmtHeader($message, $overwrite = null, $status_code = null) 
+{
     $h = array($message);
     if ($overwrite !== null) {
         $h[] = $overwrite;
@@ -55,7 +57,8 @@ function fmtHeader($message, $overwrite = null, $status_code = null) {
  * @param $headers - an array of headers formatted with fmtHeader()
  * @param $content - the content to be sent back to the browser (e.g. HTML, JSON, etc);
  */
-function fmtResponse($headers, $content) {
+function fmtResponse($headers, $content) 
+{
     return array(
         // An array of parameters to call with the PHP  headers function
         "HTTP_HEADER" => $headers,
@@ -67,12 +70,13 @@ function fmtResponse($headers, $content) {
 /**
  * defaultRoute - this basically sets up a 404 as this is the default route for a request
  * that is not valid. It is also an example of the function signature expected to by executeRoute();
- * @param $path_info - the path info value returned by $_SERVER['PATH_INFO']
+ * @param path_info - the path info value returned by                                              $_SERVER['PATH_INFO']
  * @param $options - optional information used for processing the route (e.g. get args, validation)
  * @param $db - optional default open Db object or null (defaults to null)
  * @return formatted response of header and content.
  */
-function defaultRoute($path_info, $options, $db = null) {
+function defaultRoute($path_info, $options, $db = null) 
+{
     $h = array();
     $h[] = fmtHeader("File Not Found", true, 404);
     $h[] = fmtHeader("Content-Type: text/plain", true);
@@ -89,7 +93,8 @@ function defaultRoute($path_info, $options, $db = null) {
  * @param $options - an associative array of options to pass to the callback function (e.g. validation rules)
  * @return an associative array describing the route to be processed.
  */
-function fmtRoute($path_reg_exp, $callback, $options = null) {
+function fmtRoute($path_reg_exp, $callback, $options = null) 
+{
     // Escape any | pipe symbols in the route so we have a valid pattern to pass to PCRE
     return array("path_reg_exp" => '#' . str_replace('#', '\#', $path_reg_exp) . '#',
                  "callback" => $callback,
@@ -104,7 +109,8 @@ function fmtRoute($path_reg_exp, $callback, $options = null) {
  * @param $db - an optional open Db object or null, defaults to null
  * @return a PHP Associative array suitable for processing with renderRoute();
  */
-function executeRoute($path_info, $routes, $db = null) {
+function executeRoute($path_info, $routes, $db = null) 
+{
     $path = urldecode($path_info);
     for ($i = 0; $i < count($routes); $i += 1) {
         if (preg_match($routes[$i]["path_reg_exp"], $path) === 1 ) {
@@ -123,7 +129,8 @@ function executeRoute($path_info, $routes, $db = null) {
  * @return true
  * @sideeffect - headers are sent to the web server
  */
-function renderHeaders($headers) {
+function renderHeaders($headers) 
+{
     foreach($headers as $header_params) {
         if (count($header_params) === 1) {
             header($header_params[0]);
@@ -141,12 +148,13 @@ function renderHeaders($headers) {
  * renderRoute will calculate the Expires, Cache-Control and Etag for you. 
  * It optionally can gzip the contents as well with the $user_gzip option.
  *
- * @param $route_results
- * @param $use_gzip - if true gzip the output, defaults to false
+ * @param       $route_results
+ * @param       $use_gzip - if true gzip the output, defaults to false
  * @sideeffects emits headers and sends content to stdout
- * @return always true
+ * @return      always true
  */
-function renderRoute($route_results, $use_gzip = false) {
+function renderRoute($route_results, $use_gzip = false) 
+{
     if (isset($route_results['HTTP_HEADER'])) {
         $headers = $route_results['HTTP_HEADER'];
     } else {

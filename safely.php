@@ -25,7 +25,8 @@ if (defined("SAFELY_ALLOWED_HTML") === false) {
  * @param $utf2html_string - the string to convert.
  * @return the converted string.
  */
-function utf2html ($utf2html_string, $is_hex = false) {
+function utf2html($utf2html_string, $is_hex = false) 
+{
     $f = 0xffff;
     $convmap = array(
     /* <!ENTITY % HTMLlat1 PUBLIC "-//W3C//ENTITIES Latin 1//EN//HTML">
@@ -69,14 +70,15 @@ function utf2html ($utf2html_string, $is_hex = false) {
  * @param $offset - a date object to parse relative to.
  * @return a time object or throw an exception if parse fails.
  */
-function safeStrToTime ($s, $offset = false) {
+function safeStrToTime($s, $offset = false) 
+{
     if ($offset === false) {
         $time = strtotime($s);
     } else {
         $time = strtotime($s, $offset);
     }
     if ($time === false || $time === -1) {
-        throw new Exception ("Can't parse date: $s");
+        throw new Exception("Can't parse date: $s");
     }
     return $time;
 }
@@ -87,7 +89,8 @@ function safeStrToTime ($s, $offset = false) {
  * @param $protocols - the list of accepted protocols, defaults to http, https, mailto, tel, sftp, ftp
  * @return true if a URL false otherwise
  */
-function isValidUrl($s, $protocols = null) {
+function isValidUrl($s, $protocols = null) 
+{
     if (filter_var($s, FILTER_VALIDATE_URL) === false) {
         return false;
     }
@@ -97,8 +100,9 @@ function isValidUrl($s, $protocols = null) {
         );
     }
     $parts = parse_url($s);
-    if (isset($parts['scheme']) && in_array($parts['scheme'], $protocols) &&
-        isset($parts['host']) && trim($parts['host']) !== "") {
+    if (isset($parts['scheme']) && in_array($parts['scheme'], $protocols) 
+        && isset($parts['host']) && trim($parts['host']) !== ""
+    ) {
         return true;
     }
     return false;
@@ -109,7 +113,8 @@ function isValidUrl($s, $protocols = null) {
  * @param $s - string to check
  * @return true if valid filename false otherwise.
  */
-function isValidFilename($s) {
+function isValidFilename($s) 
+{
     if (!preg_match('/^(?:[a-z0-9_-]|\/|\.(?!\.))+$/iD', $s) || mb_strlen($s, "UTF-8") >= 250) {
         return false;
     }
@@ -121,7 +126,8 @@ function isValidFilename($s) {
  * @param $s - the string to check
  * @return the validated string or false if it appears not to be an email address.
  */
-function isValidEmail($s) {
+function isValidEmail($s) 
+{
     if (filter_var($s, FILTER_VALIDATE_EMAIL) === false) {
         return false;
     }
@@ -134,12 +140,13 @@ function isValidEmail($s) {
  * Note this is a restricted map since auto-detection is not precise.
  * E.g. If you want to validate with RegExp then you need to manually 
  * create your map.
- * @param $obj - e.g. $_GET, $_POST or $_SERVER
+ * @param obj - e.g.                                                $_GET, $_POST or $_SERVER
  * @param $do_urldecode - flag to trigger urldecode of values before
  * analysize the content.
  * @return a validation map array
  */
-function defaultValidationMap ($obj, $do_urldecode = false) {
+function defaultValidationMap($obj, $do_urldecode = false) 
+{
     $is_varname = '/^([A-Z,a-z]|_|[0-9])+$/';
     $has_tags = '/(<[A-Z,a-z]+|<\/[A-Z,a-z]+>)/';
     $validation_map = array();
@@ -173,37 +180,38 @@ function defaultValidationMap ($obj, $do_urldecode = false) {
  * Based on stackexchange discussions at 
  * http://stackoverflow.com/questions/770219/how-can-i-remove-attributes-from-an-html-tag
  *
- * @param $s - the HTML string to be cleaned
- * @param $allowedattr - an array of the allowed attributes (e.g. href, src, title, alt)
+ * @param  $s - the HTML string to be cleaned
+ * @param  $allowedattr - an array of the allowed attributes (e.g. href, src, title, alt)
  * @return HTML string with only allowed attributes.
  */
-function strip_attributes($s, $allowedattr = array("href", "src", "title", "alt")) {
+function strip_attributes($s, $allowedattr = array("href", "src", "title", "alt")) 
+{
     if (preg_match_all("/<[^>]*\\s([^>]*)\\/*>/msiU", $s, $res, PREG_SET_ORDER)) {
-       foreach ($res as $r) {
-           $tag = $r[0];
-           $attrs = array();
-           preg_match_all("/\\s.*=(['\"]).*\\1/msiU", " " . $r[1], $split, PREG_SET_ORDER);
-           foreach ($split as $spl) {
-               $attrs[] = $spl[0];
-           }
-           $newattrs = array();
-           foreach ($attrs as $a) {
-               $tmp = explode("=", $a);
-               if (trim($a) !== "" && isset($tmp[0]) && isset($tmp[1]) && trim($tmp[0]) !== "" && in_array(strtolower(trim($tmp[0])), $allowedattr)) {
-                   // Only allowed attributes should get passed through
-                   // but href must not contain a javascript protocol!
-                   if (strpos(strtolower($tmp[1]), "javascript:") === false) {
-                       // attribute should not have JS injection.
-                       $newattrs[] = trim($a);
-                   }
-               }
-           }
-           $attrs = implode(" ", $newattrs);
-           $rpl = str_replace($r[1], $attrs, $tag);
-           $s = str_replace($tag, $rpl, $s);
-       }
-  }
-  return $s;
+        foreach ($res as $r) {
+            $tag = $r[0];
+            $attrs = array();
+            preg_match_all("/\\s.*=(['\"]).*\\1/msiU", " " . $r[1], $split, PREG_SET_ORDER);
+            foreach ($split as $spl) {
+                $attrs[] = $spl[0];
+            }
+            $newattrs = array();
+            foreach ($attrs as $a) {
+                $tmp = explode("=", $a);
+                if (trim($a) !== "" && isset($tmp[0]) && isset($tmp[1]) && trim($tmp[0]) !== "" && in_array(strtolower(trim($tmp[0])), $allowedattr)) {
+                    // Only allowed attributes should get passed through
+                    // but href must not contain a javascript protocol!
+                    if (strpos(strtolower($tmp[1]), "javascript:") === false) {
+                        // attribute should not have JS injection.
+                        $newattrs[] = trim($a);
+                    }
+                }
+            }
+            $attrs = implode(" ", $newattrs);
+            $rpl = str_replace($r[1], $attrs, $tag);
+            $s = str_replace($tag, $rpl, $s);
+        }
+    }
+    return $s;
 }
 
 /**
@@ -212,7 +220,8 @@ function strip_attributes($s, $allowedattr = array("href", "src", "title", "alt"
  * @param $s - the string to check and convert.
  * @return string with quotes appropriately converted.
  */
-function fix_html_quotes($s) {
+function fix_html_quotes($s) 
+{
     $a = str_split($s);
     $inCData = true;
     for ($i = 0; $i < count($a); $i += 1) {
@@ -233,7 +242,8 @@ function fix_html_quotes($s) {
  * this replace mysql_real_escape_string because this requires a mysql
  * connection to exist.
  */
-function escape($value) {
+function escape($value) 
+{
     // Handle multi-byte issues by converting to UTF-8
     // if needed.
     $from_encoding = mb_detect_encoding($value);
@@ -258,7 +268,8 @@ function escape($value) {
  * @param $verbose - error log the result of makeAs for regular expression.
  * @return a safe version of value in the format requested or false if a problem.
  */
-function makeAs ($value, $format, $verbose = false) {
+function makeAs($value, $format, $verbose = false) 
+{
     switch (strtolower($format)) {
     case 'array_text':
         if (!is_array($value)) {
@@ -266,7 +277,7 @@ function makeAs ($value, $format, $verbose = false) {
         }
         $a = array();
         foreach($value as $i => $val) {
-           $a[] = escape(strip_tags($val));
+            $a[] = escape(strip_tags($val));
         }
         return $a;
     case 'array_integers':
@@ -276,7 +287,7 @@ function makeAs ($value, $format, $verbose = false) {
         $a = array();
         foreach($value as $i => $val) {
             if (is_numeric($val) && intval($val) !== false) {
-               $a[] = intval($val); 
+                $a[] = intval($val); 
             }
         }
         return $a;
@@ -293,8 +304,9 @@ function makeAs ($value, $format, $verbose = false) {
         }
         break;
     case 'boolean':
-        if ($value === 'true' || 
-                $value === '1') {
+        if ($value === 'true'  
+            || $value === '1'
+        ) {
             return true;
         }
         return false;
@@ -315,12 +327,12 @@ function makeAs ($value, $format, $verbose = false) {
         for ($i = 0; $i < count($parts); $i += 1) {
             // NOTE on replaced line: $parts[$i] = preg_replace('/\W/u', '', $parts[$i]);
             // PRCE was not compiled with UTF-8 support on web-app.usc.edu. 2015-02-19 RSD
-           $parts[$i] = preg_replace('/\W/', '', $parts[$i]);
+            $parts[$i] = preg_replace('/\W/', '', $parts[$i]);
         }
         return implode(',', $parts);
     case 'html':
         if (gettype($value) === "string") {
-           return escape(fix_html_quotes(strip_attributes(strip_tags(utf2html($value), SAFELY_ALLOWED_HTML))));
+            return escape(fix_html_quotes(strip_attributes(strip_tags(utf2html($value), SAFELY_ALLOWED_HTML))));
         }
         return false;
     case 'text':
@@ -333,8 +345,9 @@ function makeAs ($value, $format, $verbose = false) {
             return $value;
         }
         // Check to see if we're just missing protocol and try http://.
-        if (strpos($value, '://') === false  && 
-                isValidUrl('http://' . $value) === true) {
+        if (strpos($value, '://') === false   
+            && isValidUrl('http://' . $value) === true
+        ) {
             return 'http://' . $value;
         }
         return false;
@@ -350,9 +363,11 @@ function makeAs ($value, $format, $verbose = false) {
         return false;
     }
     // We haven't found one of our explicit formats so...
-    $preg_result = preg_match(">" . '^' . 
+    $preg_result = preg_match(
+        ">" . '^' . 
         str_replace(">", "\>", $format) . '$' . ">",
-        $value);
+        $value
+    );
 
     if ($verbose === true) {
         error_log("value, format and preg_math result: $value $format -> $preg_result");
@@ -371,11 +386,12 @@ function makeAs ($value, $format, $verbose = false) {
  * @param $verbose - log regexp makeAs results. (default is false)
  * @return the sanitized version of $_GET.
  */
-function safeGET ($validation_map = NULL, $verbose = false) {
+function safeGET($validation_map = null, $verbose = false) 
+{
     global $_GET;
     $results = array();
 
-    if (SAFELY_ALLOW_UNSAFE === true && $validation_map === NULL) {
+    if (SAFELY_ALLOW_UNSAFE === true && $validation_map === null) {
         // We support limited auto-detect types otherwise App
         // Code needs to supply a validation map.
         $validation_map = defaultValidationMap($_GET, true);
@@ -401,11 +417,12 @@ function safeGET ($validation_map = NULL, $verbose = false) {
  * @param $verbose - log regexp makeAs results. (default is false)
  * @return the sanitized version of $_POST
  */
-function safePOST ($validation_map = NULL, $verbose = false) {
+function safePOST($validation_map = null, $verbose = false) 
+{
     global $_POST;
     $results = array();
     
-    if (SAFELY_ALLOW_UNSAFE === true && $validation_map === NULL) {
+    if (SAFELY_ALLOW_UNSAFE === true && $validation_map === null) {
         $validation_map = defaultValidationMap($_POST, false);
     }
     foreach($validation_map as $key => $format) {
@@ -427,11 +444,12 @@ function safePOST ($validation_map = NULL, $verbose = false) {
  * @param $verbose - log regexp makeAs results. (default is false)
  * @return the sanitized version of $_SERVER
  */
-function safeSERVER ($validation_map = NULL, $verbose = false) {
+function safeSERVER($validation_map = null, $verbose = false) 
+{
     global $_SERVER;
     $results = array();
     
-    if ($validation_map === NULL) {
+    if ($validation_map === null) {
         $validation_map = defaultValidationMap($_SERVER, false);
     }
     foreach($validation_map as $key => $format) {
@@ -451,7 +469,8 @@ function safeSERVER ($validation_map = NULL, $verbose = false) {
  * @param $verbose (optional) - log regexp makeAs results. (default is false)
  * @return the santized version of $json_string.
  */
-function safeJSON($json_string, $validation_map, $verbose = false) {
+function safeJSON($json_string, $validation_map, $verbose = false) 
+{
     $obj = json_decode($json_string, true);
     $results = array();
     
@@ -470,7 +489,8 @@ function safeJSON($json_string, $validation_map, $verbose = false) {
  * @param $verbose (optoinal) - log regexp makeAs results. (default is false)
  * @return the santized string or false
  */
-function safeFilename($filename, $verbose = false) {
+function safeFilename($filename, $verbose = false) 
+{
     return makeAs($filename, "filename", $verbose);
 }
 ?>

@@ -12,13 +12,15 @@ error_reporting(E_ALL | E_STRICT);
  * Db - is the database object for working with both old (i.e. mysql_*) and new (i.e.
  * mysqli_*) MySQL procedural calls in PHP 5.3 and above.
  */
-class Db {
+class Db
+{
     /**
      * __construct: Constructor for Db objects.
      * @param $MYSQL_DB_CONNECT_STRING - DB connection info as URL
      *    (e.g. mysqli://DB_USERNAME:DB_PASSWORD@HOSTNAME/DB_NAME.
      */
-    public function __construct($MYSQL_DB_CONNECT_STRING) {
+    public function __construct($MYSQL_DB_CONNECT_STRING) 
+    {
         $url = parse_url($MYSQL_DB_CONNECT_STRING);
         $this->db_type = strtolower($url['scheme']);
         $this->db_name = basename($url['path']);
@@ -37,7 +39,8 @@ class Db {
      * @param $target - either "echo" or "error_log"
      * @return new log target
      */
-    public function setLog($target) {
+    public function setLog($target) 
+    {
         if ($target === 'echo' || $target === 'error_log') {
             $this->log_output = $target;
         }
@@ -49,7 +52,8 @@ class Db {
      * @param $msg - the message to emmit
      * @param $verbose - true, emmit message, otherwise ignore
      */
-    public function logIt($msg, $verbose) {
+    public function logIt($msg, $verbose) 
+    {
         if ($verbose === true) {
             if ($this->log_output === 'error_log') {
                 error_log($msg);
@@ -64,7 +68,8 @@ class Db {
      * open - open a database connection (RDBMS/NoSQL).
      * @return true on success, false otherwise.
      */
-    public function open () {
+    public function open() 
+    {
         $this->last_insert_id = 0;
         $this->rows = array();
         $this->rows_affected = 0;
@@ -84,8 +89,10 @@ class Db {
                 error_log(mysql_error());
             }
         }
-        error_log("Can't open db " . $this->db_name .
-            ' by ' . $this->db_user);
+        error_log(
+            "Can't open db " . $this->db_name .
+            ' by ' . $this->db_user
+        );
         return false;
     }
 
@@ -93,17 +100,20 @@ class Db {
      * close - Close the open database connection.
      * @return true if successful, false otherwise.
      */
-    public function close () {
+    public function close() 
+    {
         $this->last_insert_id = 0;
         $this->rows = array();
         $this->rows_affected = 0;
-        if ($this->db_type === 'mysqli' &&
-            $this->link !== false) {
+        if ($this->db_type === 'mysqli' 
+            && $this->link !== false
+        ) {
             mysqli_close($this->link);
             $this->link = null;
             return $this->link;
-        } else if ($this->db_type === 'mysql' &&
-                $this->link !== false) {
+        } else if ($this->db_type === 'mysql' 
+            && $this->link !== false
+        ) {
             mysql_close($this->link);
             $this->link = null;
             return $this->link;
@@ -119,10 +129,11 @@ class Db {
      * @param $verbose - if true then log errors
      * @return true if successful, false otherwise 
      */
-    public function executeSQL ($sql, $params = array(), $verbose = false) {
+    public function executeSQL($sql, $params = array(), $verbose = false) 
+    {
         if ($this->db_type === 'mysqli') {
-        // use a regular SQL query
-        // use a prepared statement
+            // use a regular SQL query
+            // use a prepared statement
             $stmt = mysqli_stmt_init($this->link);
             if (mysqli_stmt_prepare($stmt, $sql) === false) {
                 $this->logIt("Can't prepare $sql", $verbose);
@@ -132,21 +143,23 @@ class Db {
                 // Review each of the args and generate a type string
                 $type_string = '';
                 for($i = 0; $i < count($params); $i += 1) {
-                        if (is_int($params[$i])) {
-                            $type_string .= 'i';
-                        } else if (is_float($params[$i])) {
-                            $type_string .= 'd';
-                        } else {
-                            $type_string .= 's';
-                        }
+                    if (is_int($params[$i])) {
+                        $type_string .= 'i';
+                    } else if (is_float($params[$i])) {
+                        $type_string .= 'd';
+                    } else {
+                        $type_string .= 's';
+                    }
                 }
                 // Make sure we're passing array parameters by references.
                 $call_params = array($stmt, $type_string);
                 for($i = 0; $i < count($params); $i += 1) {
                         $call_params[] = &$params[$i];
                 }
-                call_user_func_array('mysqli_stmt_bind_param', 
-                                         $call_params);
+                call_user_func_array(
+                    'mysqli_stmt_bind_param', 
+                    $call_params
+                );
             }
             mysqli_stmt_execute($stmt);
             if (stripos($sql, 'SELECT') === 0) {
@@ -223,16 +236,18 @@ class Db {
      * getRow - shift a row from an SQL query results
      * @return an associative array of the row or false if no row available.
      */
-    public function getRow () {
-       $row = array_shift($this->rows);
-       return $row;
+    public function getRow() 
+    {
+        $row = array_shift($this->rows);
+        return $row;
     }
 
     /**
      * lastInsertRowId - get the id of the last inserted row.
      * @return the row if or false
      */
-    public function lastInsertRowId () {
+    public function lastInsertRowId() 
+    {
         return $this->last_insert_id;
     }
 
@@ -240,14 +255,16 @@ class Db {
      * rowsAffected - get the last value saved for rows affected.
      * @return the number of rows affected.
      */
-    public function rowsAffected() {
+    public function rowsAffected() 
+    {
         return $this->rows_affected;
     }
     
     /**
      * getRowCount - get the number of rows saved in $this->rows
      */
-    public function rowCount() {
+    public function rowCount() 
+    {
         return count($this->rows);
     }
 }

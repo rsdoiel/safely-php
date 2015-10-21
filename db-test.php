@@ -10,17 +10,18 @@ error_reporting(E_ALL | E_STRICT);
 @date_default_timezone_set(date_default_timezone_get());
 
 if (file_exists("assert.php")) {
-    require_once("assert.php");
+    include_once "assert.php";
 }
-require_once('db.php');
+require_once 'db.php';
 
 if (file_exists('con-test.php')) {
-    include('con-test.php');
+    include 'con-test.php';
 } else {
     die("You need to create con-test.php to test the db library." . PHP_EOL);
 }
 
-function testLogOutput ($MYSQL_CONNECTION_URL) {
+function testLogOutput($MYSQL_CONNECTION_URL) 
+{
     global $assert;
 
     $db = new Db($MYSQL_CONNECTION_URL);
@@ -33,7 +34,8 @@ function testLogOutput ($MYSQL_CONNECTION_URL) {
     return "Requires manual visual check";
 }
 
-function testConstructor ($MYSQL_CONNECTION_URL) {
+function testConstructor($MYSQL_CONNECTION_URL) 
+{
     global $assert;
     $scheme = parse_url($MYSQL_CONNECTION_URL, PHP_URL_SCHEME);
     $dbname = basename(parse_url($MYSQL_CONNECTION_URL, PHP_URL_PATH));
@@ -52,7 +54,8 @@ function testConstructor ($MYSQL_CONNECTION_URL) {
     return "OK";
 }
 
-function testOpenClose($MYSQL_CONNECTION_URL) {
+function testOpenClose($MYSQL_CONNECTION_URL) 
+{
     global $assert;
     
     $obj = new Db($MYSQL_CONNECTION_URL);
@@ -63,7 +66,8 @@ function testOpenClose($MYSQL_CONNECTION_URL) {
     return "OK";
 }
 
-function testSQL($MYSQL_CONNECTION_URL) {
+function testSQL($MYSQL_CONNECTION_URL) 
+{
     global $assert;
     
     $obj = new Db($MYSQL_CONNECTION_URL);
@@ -78,8 +82,10 @@ function testSQL($MYSQL_CONNECTION_URL) {
     $row_count = $obj->rowCount();
     $assert->equal(0, $row_count, "Should get zero rows" . print_r($obj->rows, true));
 
-    $r = $obj->executeSQL("INSERT INTO test_persistence (name, level, success) VALUES (?, ?, ?)",
-                          array("fred", 3, 0.98), true);
+    $r = $obj->executeSQL(
+        "INSERT INTO test_persistence (name, level, success) VALUES (?, ?, ?)",
+        array("fred", 3, 0.98), true
+    );
     $assert->ok($r, "Should get a true response from executeSQL().");
     $assert->equal(1, $obj->rowsAffected(), "Should have one new row");
 
@@ -96,7 +102,8 @@ function testSQL($MYSQL_CONNECTION_URL) {
     return "OK";
 }
 
-function testEmbeddedQuestionMarks($MYSQL_CONNECTION_URL) {
+function testEmbeddedQuestionMarks($MYSQL_CONNECTION_URL) 
+{
     global $assert;
     
     $db = new Db($MYSQL_CONNECTION_URL);
@@ -162,7 +169,7 @@ function testEmbeddedQuestionMarks($MYSQL_CONNECTION_URL) {
         "calendar_id" => 32,
         "parent_calendar_id" => 32,
         "parent_calendar" => "USC Public Events"
-	);
+    );
     $sql = 'INSERT INTO test_events (event_id, title, subtitle, summary, ' .
         'description, ' .
         'venue, campus, building_code, room, address, cost, ' .
@@ -173,7 +180,8 @@ function testEmbeddedQuestionMarks($MYSQL_CONNECTION_URL) {
         '?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '. 
         '?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ' .
         '?, ?, ?, ?, ?, ?, ?)';
-    $isOK = $db->executeSQL($sql, array(
+    $isOK = $db->executeSQL(
+        $sql, array(
         $event['event_id'],
         $event['title'],
         $event['subtitle'],
@@ -203,7 +211,8 @@ function testEmbeddedQuestionMarks($MYSQL_CONNECTION_URL) {
         $event['scratch_pad'],
         $event['created'],
         $event['updated'],
-        $event['publication_date']), true);
+        $event['publication_date']), true
+    );
 
     
     $sql = 'SELECT event_id FROM test_events WHERE event_id = ?';

@@ -5,21 +5,22 @@
  */
 define("SAFELY_ALLOW_UNSAFE", true);
 if (php_sapi_name() !== "cli") {
-	echo "Must be run from the command line." . PHP_EOL;
-	exit(1);
+    echo "Must be run from the command line." . PHP_EOL;
+    exit(1);
 }
 error_reporting(E_ALL | E_STRICT);
 @date_default_timezone_set(date_default_timezone_get());
 
 echo 'Requiring assert.php' . PHP_EOL;
-require('assert.php');
+require 'assert.php';
 $_POST = array();
 $_SERVER = array();
 
 echo 'Loading safely.php' . PHP_EOL;
-include('safely.php');
+require 'safely.php';
 
-function testIsFilename () {
+function testIsFilename() 
+{
     global $assert;
 
     $assert->ok(isValidFilename("three.txt"), "/one/two/three.txt should be valid");
@@ -30,43 +31,45 @@ function testIsFilename () {
     return "OK";
 }
 
-function testSupportFunctions () {
-	global $assert;
-	
-	// Test basic GET args
+function testSupportFunctions() 
+{
+    global $assert;
+    
+    // Test basic GET args
     $_GET = array();
-	$_GET["int"] = "1";
-	$_GET["float"] = "2.1";
-	$_GET["varname"] = "my_var_name";
-	$_GET["html"] = "This is a <b>html</b>.";
-	$_GET["text"] = "This is plain text.";
+    $_GET["int"] = "1";
+    $_GET["float"] = "2.1";
+    $_GET["varname"] = "my_var_name";
+    $_GET["html"] = "This is a <b>html</b>.";
+    $_GET["text"] = "This is plain text.";
     $_GET["boolean"] = "true";
     $_GET["url"] = "http://www.usc.edu";
     $_GET["email"] = "ttrojan@usc.edu";
-	$expected_map = array(
-		"int" => "Integer",
-		"float" => "Float",
-		"varname" => "Varname",
-		"html" => "HTML",
-		"text" => "Text",
+    $expected_map = array(
+    "int" => "Integer",
+    "float" => "Float",
+    "varname" => "Varname",
+    "html" => "HTML",
+    "text" => "Text",
         "boolean" => "Boolean",
         "url" => "Url",
         "email" => "Email"
-	);
-	$results = defaultValidationMap($_GET);
-	$assert->ok($results, "Should get back an array for defaultValidationMap()");
-	foreach ($expected_map as $key => $value) {
-		$assert->ok(isset($results[$key]), "Must have $key in results");
-		$assert->equal($results[$key], $expected_map[$key], "results != expected for [$key], got " . print_r($results, true));
-	}
-	foreach ($results as $key => $value) {
-		$assert->ok(isset($expected_map[$key]), "Unexpected $key in results" . print_r($results, true));
-	}
-	
-	return "OK";
+    );
+    $results = defaultValidationMap($_GET);
+    $assert->ok($results, "Should get back an array for defaultValidationMap()");
+    foreach ($expected_map as $key => $value) {
+        $assert->ok(isset($results[$key]), "Must have $key in results");
+        $assert->equal($results[$key], $expected_map[$key], "results != expected for [$key], got " . print_r($results, true));
+    }
+    foreach ($results as $key => $value) {
+        $assert->ok(isset($expected_map[$key]), "Unexpected $key in results" . print_r($results, true));
+    }
+    
+    return "OK";
 }
 
-function testImprovedURLHandling () {
+function testImprovedURLHandling() 
+{
     global $assert;
 
     $_GET = array("url" => "http://example.com");
@@ -82,7 +85,8 @@ function testImprovedURLHandling () {
     return "OK";
 }
 
-function testFixHTMLQuotes () {
+function testFixHTMLQuotes() 
+{
     global $assert;
     $s = '<p>Test of "quotes" in string.</p>';
     $result = fix_html_quotes($s);
@@ -104,113 +108,119 @@ function testFixHTMLQuotes () {
 }
 
 
-function testGETProcessing () {
-	global $assert;
+function testGETProcessing() 
+{
+    global $assert;
 
-	// Test $_GET processing works
-	$_GET = array(
-		"one" => "1",
-		"two" => "2.1",
-		"three" => "my_var_name",
-		"four" => "This is a string.",
+    // Test $_GET processing works
+    $_GET = array(
+    "one" => "1",
+    "two" => "2.1",
+    "three" => "my_var_name",
+    "four" => "This is a string.",
         "five_six" => "this is five underscore six",
         "seven-eight" => "this is seven dash eight"
-	);
-	$expected_map = array(
-		"one" => "1",
-		"two" => "2.1",
-		"three" => "my_var_name",
-		"four" => "This is a string.",
+    );
+    $expected_map = array(
+    "one" => "1",
+    "two" => "2.1",
+    "three" => "my_var_name",
+    "four" => "This is a string.",
         "five_six" => "this is five underscore six",
         "seven-eight" => "this is seven dash eight"
-	);
-	
-	$results = safeGET();
-	
-	$assert->ok($results, "Should have results from safeGET()");
-	foreach ($expected_map as $key => $value) {
-		$assert->ok(isset($results[$key]), "Must have $key in results");
-		$assert->equal($results[$key], $expected_map[$key], "results != expected for [$key], got " . print_r($results, true));
-	}
-	foreach ($results as $key => $value) {
-		$assert->ok(isset($expected_map[$key]), "Unexpected $key in results" . print_r($results, true));
-	}
-	
-	return "OK";
+    );
+    
+    $results = safeGET();
+    
+    $assert->ok($results, "Should have results from safeGET()");
+    foreach ($expected_map as $key => $value) {
+        $assert->ok(isset($results[$key]), "Must have $key in results");
+        $assert->equal($results[$key], $expected_map[$key], "results != expected for [$key], got " . print_r($results, true));
+    }
+    foreach ($results as $key => $value) {
+        $assert->ok(isset($expected_map[$key]), "Unexpected $key in results" . print_r($results, true));
+    }
+    
+    return "OK";
 }
 
-function testPOSTProcessing () {
-	global $assert;
+function testPOSTProcessing() 
+{
+    global $assert;
 
-	// Test $_POST processing works
-	$_POST = array(
-		"one" => "1",
-		"two" => "2.1",
-		"three" => "my_var_name",
-		"four" => "This is a string."
-	);
-	$expected_map = array(
-		"one" => "1",
-		"two" => "2.1",
-		"three" => "my_var_name",
-		"four" => "This is a string.",
-	);
-	
-	$results = safePOST();
-	
-	$assert->ok($results, "Should have results from safePOST()");
-	foreach ($expected_map as $key => $value) {
-		$assert->ok(isset($results[$key]), "Must have $key in results");
-		$assert->equal($results[$key], $expected_map[$key], "results != expected for [$key], got " . print_r($results, true));
-	}
-	foreach ($results as $key => $value) {
-		$assert->ok(isset($expected_map[$key]), "Unexpected $key in results" . print_r($results, true));
-	}
-	
-	return "OK";
+    // Test $_POST processing works
+    $_POST = array(
+    "one" => "1",
+    "two" => "2.1",
+    "three" => "my_var_name",
+    "four" => "This is a string."
+    );
+    $expected_map = array(
+    "one" => "1",
+    "two" => "2.1",
+    "three" => "my_var_name",
+    "four" => "This is a string.",
+    );
+    
+    $results = safePOST();
+    
+    $assert->ok($results, "Should have results from safePOST()");
+    foreach ($expected_map as $key => $value) {
+        $assert->ok(isset($results[$key]), "Must have $key in results");
+        $assert->equal($results[$key], $expected_map[$key], "results != expected for [$key], got " . print_r($results, true));
+    }
+    foreach ($results as $key => $value) {
+        $assert->ok(isset($expected_map[$key]), "Unexpected $key in results" . print_r($results, true));
+    }
+    
+    return "OK";
 }
 
-function testSERVERProcessing () {
-	global $assert;
+function testSERVERProcessing() 
+{
+    global $assert;
 
-	// Test $_POST processing works
-	$_SERVER = array(
-		"one" => "1",
-		"two" => "2.1",
-		"three" => "my_var_name",
-		"four" => "This is a string."
-	);
-	$expected_map = array(
-		"one" => "1",
-		"two" => "2.1",
-		"three" => "my_var_name",
-		"four" => "This is a string.",
-	);
-	
-	$results = safeSERVER();
-	
-	$assert->ok($results, "Should have results from safeSERVER()");
-	foreach ($expected_map as $key => $value) {
-		$assert->ok(isset($results[$key]), "Must have $key in results");
-		$assert->equal($results[$key], $expected_map[$key], "results != expected for [$key], got " . print_r($results, true));
-	}
-	foreach ($results as $key => $value) {
-		$assert->ok(isset($expected_map[$key]), "Unexpected $key in results" . print_r($results, true));
-	}
+    // Test $_POST processing works
+    $_SERVER = array(
+    "one" => "1",
+    "two" => "2.1",
+    "three" => "my_var_name",
+    "four" => "This is a string."
+    );
+    $expected_map = array(
+    "one" => "1",
+    "two" => "2.1",
+    "three" => "my_var_name",
+    "four" => "This is a string.",
+    );
+    
+    $results = safeSERVER();
+    
+    $assert->ok($results, "Should have results from safeSERVER()");
+    foreach ($expected_map as $key => $value) {
+        $assert->ok(isset($results[$key]), "Must have $key in results");
+        $assert->equal($results[$key], $expected_map[$key], "results != expected for [$key], got " . print_r($results, true));
+    }
+    foreach ($results as $key => $value) {
+        $assert->ok(isset($expected_map[$key]), "Unexpected $key in results" . print_r($results, true));
+    }
 
     // Test processing PATH_INFO against a known path structure.
     $term_code_regexp = "20[0-9][0-9][1-3]";
     $section_code_regexp = "[0-9][0-9][0-9][0-9][0-9]";
     $_SERVER['PATH_INFO'] = '/20142/33361';
-    $results = safeSERVER(array(
+    $results = safeSERVER(
+        array(
             "PATH_INFO" => '/' . $term_code_regexp . '/' . $section_code_regexp
-        ));
+        )
+    );
     $assert->ok($results, "Should have results from safeSERVER() for PATH_INFO");
     $assert->ok($results['PATH_INFO'], "PATH_INFO should not be false");
-	return "OK";
+    return "OK";
 }
 
-function testSafeStrToTime() {
+function testSafeStrToTime() 
+{
     global $assert;
     $s = "2014-01-01 00:00:00";
     try {
@@ -230,7 +240,8 @@ function testSafeStrToTime() {
     return "OK";
 }
 
-function testVarnameLists() {
+function testVarnameLists() 
+{
     global $assert;
     $s = "one,two,three";
     $r = makeAs($s, "varname_list");
@@ -263,7 +274,8 @@ function testVarnameLists() {
     return "OK";
 }
 
-function testPRCEExpressions() {
+function testPRCEExpressions() 
+{
     global $assert;
 
     $re = "\([0-9][0-9][0-9]\)[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]";
@@ -281,7 +293,8 @@ function testPRCEExpressions() {
     
 }
 
-function testMakeAs() {
+function testMakeAs() 
+{
     global $assert;
 
     $s = "one1";
@@ -382,7 +395,8 @@ EOT;
     return "OK";
 }
 
-function testSelectMultiple() {
+function testSelectMultiple() 
+{
     global $assert;
 
     $_POST = array(
@@ -393,9 +407,11 @@ function testSelectMultiple() {
         )
     );
 
-    $post = safePOST(array(
+    $post = safePOST(
+        array(
         'select_multiple' => 'Array_Integers'
-    ));
+        )
+    );
 
     $assert->equal($post['select_multiple'][0], '1', 'First element should be "1"');
     $assert->equal($post['select_multiple'][1], '2', 'Second element should be "2"');
@@ -403,7 +419,8 @@ function testSelectMultiple() {
     return "OK";
 }
 
-function testUTF2HTML() {
+function testUTF2HTML() 
+{
     global $assert;
     
     $s = '<a href="#jim">Jim</a> said, ' . html_entity_decode('&ldquo;') . 'I' . 
@@ -497,7 +514,7 @@ EOT;
     $result = utf2html($text);
     $assert->equal($text_expected, $result, "\n[$text_expected]\n[$result]\n");
 
-  // NOTE: The micron should not cause the text to be changed. This test confirms the text is preserved by utf2html()
+    // NOTE: The micron should not cause the text to be changed. This test confirms the text is preserved by utf2html()
     $text=<<<EOT
 Standard historiography of the church in Kyoto during the Christian Century (1549-1650) does not mention the remarkable leader Naito Julia. Julia, who was once the abbess of Jōdo convent, became a successful evangelist for the Jesuit mission in Japan. She founded and led a society of Christian women catechists, whom people called the Miyaco no bicuni [bikuni] ("nuns of Kyoto"). Between 1600 and 1612, Julia and her nuns preached, engaged in religious disputations, catechized, baptized hundreds of persons, and provided pastoral care for the new converts. Although none of the women's writings survive to tell us about their ideas and experiences, Fucan Fabian's 1607 Myōtei mondō suggests how they may have understood differences between Buddhism, Shinto, Confucianism, Taoism and Christianity.
 EOT;
@@ -512,7 +529,8 @@ EOT;
     return "OK";
 }
 
-function testAttributeCleaning() {
+function testAttributeCleaning() 
+{
     global $assert;
 
     $s = '<div><a href="mylink.html" title="fred" style="font-size:20">Fred</a></div>';
@@ -540,7 +558,8 @@ function testAttributeCleaning() {
     return "OK";
 }
 
-function testSafeJSON() {
+function testSafeJSON() 
+{
     global $assert;
 
     $validation_map = array(
@@ -576,41 +595,43 @@ function testSafeJSON() {
 {"event_id":"913298","title":"<a href =\"javascript:whs(1)\">click<\/a>","subtitle":"","summary":"<script>function whs(val) { assert(val); }</script>click<a  href =\"javascript:whs(1)\">click<\/a>","description":"<a  href =\"javascript:whs(1)\">click<\/a>","cost":"","contact_phone":"","contact_email":"","rsvp_email":"","rsvp_url":"","url":"","ticket_url":"","campus":"University Park","venue":"125th Anniversary Fountain","building_code":"","room":"1234","address":"125th Anniversary Fountain","feature_candidate":"0","username":"dd_064","name":"WhiteHat Audit Account","scratch_pad":"","created":"2014-11-06 12:52:50","updated":"2014-11-06 12:52:50","publication_date":"0000-00-00 00:00:00","parent_calendar_id":"32","parent_calendar":"USC Public Events","sponsors":[],"audiences":[],"schedule":"11\/25\/2014: 03:00 - 05:00","dates":"11\/25\/2014","occurrences":[{"start":"2014-11-25 03:00:00","end":"2014-11-25 05:00:59"}],"first_occurrence":"2014-11-25 03:00:00","last_occurrence":"2014-11-25 03:00:00","next_occurrence":"2014-11-25 03:00:00","categories":{"32":["Theater"]},"attachments":{"32":{"image_o":{"mime_type":"image\/jpeg","url":"https:\/\/web-app.usc.edu\/event-images\/32\/913298\/whs_xss_test.jpg"}}},"status":{"32":{"status":"draft","calendar_id":"32"}},"start":"3:00","end":"5:00","error_status":"OK"}
 BAD_JSON;
 
-   $result = json_decode($badjson, true);
-   $result = safeJSON($badjson, $validation_map, false);
-   $assert->ok(is_array($result), "Should get an array type back");
-   $assert->ok(is_integer($result['event_id']), "Should have an integer value for event_id");
-   $assert->equal($result['event_id'], 913298, "have an event id of 913298");
-   $assert->ok(is_string($result['title']), "title should be string " . gettype($result['title']));
-   $assert->equal($result['title'], "click", "title wrong.");
-   $assert->equal(strpos($result['summary'], "<script>"), false, "Should move script element");
-   return "OK";
+    $result = json_decode($badjson, true);
+    $result = safeJSON($badjson, $validation_map, false);
+    $assert->ok(is_array($result), "Should get an array type back");
+    $assert->ok(is_integer($result['event_id']), "Should have an integer value for event_id");
+    $assert->equal($result['event_id'], 913298, "have an event id of 913298");
+    $assert->ok(is_string($result['title']), "title should be string " . gettype($result['title']));
+    $assert->equal($result['title'], "click", "title wrong.");
+    $assert->equal(strpos($result['summary'], "<script>"), false, "Should move script element");
+    return "OK";
 }
 
-function testHREFCleaning() {
-   global $assert;
+function testHREFCleaning() 
+{
+    global $assert;
 
-   $validation_map = array(
+    $validation_map = array(
         "title" => "HTML"
        );
-   $_POST = array(
+    $_POST = array(
         "title" => 'Injection <a href="javascript:alert(\"Something Bad\")">Test</a>.'
        );
-   $expected_result = array(
+    $expected_result = array(
         "title" => 'Injection <a >Test</a>.'
        );
-   $result = safePOST($validation_map);
-   $assert->equal($result['title'], $expected_result['title'], "Should have a clean href in title: ". $result['title']);
+    $result = safePOST($validation_map);
+    $assert->equal($result['title'], $expected_result['title'], "Should have a clean href in title: ". $result['title']);
 
-   $_POST = array(
+    $_POST = array(
         "title" => 'Injection <a href=' . "'" . 'javascript:alert("Something Bad")' . "'" . '>Test</a>.'
        );
-   $result = safePOST($validation_map);
-   $assert->equal($result['title'], $expected_result['title'], "Should have a clean href in title: ". $result['title']);
-   return "OK";
+    $result = safePOST($validation_map);
+    $assert->equal($result['title'], $expected_result['title'], "Should have a clean href in title: ". $result['title']);
+    return "OK";
 }
 
-function testAnchorElementSantization() {
+function testAnchorElementSantization() 
+{
     global $assert;
 
     $validation_map = array(
@@ -630,7 +651,8 @@ GOOD_JSON;
     return "OK";
 }
 
-function testHTMLQuoteHandling () {
+function testHTMLQuoteHandling() 
+{
     global $assert;
 
     $_GET = array('title' => '<p>Test of "quotes"</p>');
@@ -639,7 +661,8 @@ function testHTMLQuoteHandling () {
     return "OK";
 }
 
-function testCleanScriptElements() {
+function testCleanScriptElements() 
+{
     global $assert;
 
     $raw = '<script>alert("Oops this is bad.");</script>This is a title.';
@@ -661,7 +684,8 @@ function testCleanScriptElements() {
     return "OK";
 }
 
-function testSaneUnicodeSupportPCRE() {
+function testSaneUnicodeSupportPCRE() 
+{
     global $assert;
 
     $allowInternational = false;
