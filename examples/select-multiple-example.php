@@ -1,14 +1,22 @@
 <?php
-include('../safely.php');
+require '../safely.php';
 if (isset($_POST['the_selected'])) {
     $the_selected = json_encode($_POST['the_selected'], JSON_PRETTY_PRINT);
 }
-$the_selected_filtered1 = json_encode(safePOST(array(
-    'the_selected' => 'Array_Integers'
-)), JSON_PRETTY_PRINT);
-$the_selected_filtered2 = json_encode(safePOST(array(
-    'the_selected' => 'Array_Text'
-)), JSON_PRETTY_PRINT);
+$the_selected_filtered1 = json_encode(
+    safePOST(
+        array(
+        'the_selected' => 'Array_Integers'
+        )
+    ), JSON_PRETTY_PRINT
+);
+$the_selected_filtered2 = json_encode(
+    safePOST(
+        array(
+        'the_selected' => 'Array_Text'
+        )
+    ), JSON_PRETTY_PRINT
+);
 ?>
 <!DOCTYPE>
 <html>

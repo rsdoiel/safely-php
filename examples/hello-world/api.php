@@ -3,8 +3,8 @@
  * api.php - a demonstrating the useful of safely.php and restful.php to produce
  * a safe and simple RESTful JSON service.
  */
-require_once("../../safely.php");
-require_once("../../restful.php");
+require_once "../../safely.php";
+require_once "../../restful.php";
 
 // We will use these constants to keep code readable and immutable.
 define("HELLO_WORLD_ROUTE", "/");// This is a basic default route.
@@ -64,9 +64,9 @@ $helloNameHandler = function ($path, $options) {
     $headers = array();
     $headers[] = fmtHeader("Content-Type: application/json", true);
     if (!$name) {
-       error_log("ERROR: name not valid"); 
-       $headers[] = fmtHeader("Bad Request", true, 400);
-       $content = '{"status": "error", "message": "Invalid name"}';
+        error_log("ERROR: name not valid"); 
+        $headers[] = fmtHeader("Bad Request", true, 400);
+        $content = '{"status": "error", "message": "Invalid name"}';
     } else {
         $headers[] = fmtHeader("OK", true, 200);
         $content = json_encode(array("message" => $name), true);
